@@ -97,7 +97,8 @@ if TYPE_CHECKING:
 
     from opentelemetry.sdk.trace import Span
     from pydantic import NonNegativeInt
-    from sqlalchemy.orm import Query, Session
+    from sqlalchemy.engine import ScalarResult
+    from sqlalchemy.orm import Session
     from sqlalchemy.sql.elements import Case, ColumnElement
 
     from airflow.models.dag_version import DagVersion
@@ -348,7 +349,7 @@ class DagRun(Base, LoggingMixin):
         self.conf = conf or {}
         if state is not None:
             self.state = state
-        if queued_at is NOTSET:
+        if isinstance(queued_at, ArgNotSet):
             self.queued_at = timezone.utcnow() if state == DagRunState.QUEUED else None
         elif queued_at is not None:
             self.queued_at = queued_at
@@ -572,11 +573,11 @@ class DagRun(Base, LoggingMixin):
         )
         if exclude_backfill:
             query = query.where(cls.run_type != DagRunType.BACKFILL_JOB)
-        return dict(session.execute(query).all())
+        return {dag_id: count for dag_id, count in session.execute(query)}
 
     @classmethod
     @retry_db_transaction
-    def get_running_dag_runs_to_examine(cls, session: Session) -> Query:
+    def get_running_dag_runs_to_examine(cls, session: Session) -> ScalarResult[DagRun]:
         """
         Return the next DagRuns that the scheduler should attempt to schedule.
 
@@ -615,7 +616,7 @@ class DagRun(Base, LoggingMixin):
 
     @classmethod
     @retry_db_transaction
-    def get_queued_dag_runs_to_set_running(cls, session: Session) -> Query:
+    def get_queued_dag_runs_to_set_running(cls, session: Session) -> ScalarResult[DagRun]:
         """
         Return the next queued DagRuns that the scheduler should attempt to schedule.
 
