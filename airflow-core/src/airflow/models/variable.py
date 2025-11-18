@@ -238,20 +238,34 @@ class Variable(Base, LoggingMixin):
             is_encrypted = new_variable.is_encrypted
 
             # Import dialect-specific insert function
+            # Create the insert statement (for specific dialect)
             if (dialect_name := session.get_bind().dialect.name) == "postgresql":
-                from sqlalchemy.dialects.postgresql import insert
-            elif dialect_name == "mysql":
-                from sqlalchemy.dialects.mysql import insert
-            else:
-                from sqlalchemy.dialects.sqlite import insert
+                from sqlalchemy.dialects.postgresql import insert as postgresql_insert
 
-            # Create the insert statement (common for all dialects)
-            stmt = insert(Variable).values(
-                key=key,
-                val=val,
-                description=description,
-                is_encrypted=is_encrypted,
-            )
+                stmt: Any = postgresql_insert(Variable).values(
+                    key=key,
+                    val=val,
+                    description=description,
+                    is_encrypted=is_encrypted,
+                )
+            elif dialect_name == "mysql":
+                from sqlalchemy.dialects.mysql import insert as mysql_insert
+
+                stmt = mysql_insert(Variable).values(
+                    key=key,
+                    val=val,
+                    description=description,
+                    is_encrypted=is_encrypted,
+                )
+            else:
+                from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+                stmt = sqlite_insert(Variable).values(
+                    key=key,
+                    val=val,
+                    description=description,
+                    is_encrypted=is_encrypted,
+                )
 
             # Apply dialect-specific upsert
             if dialect_name == "mysql":
@@ -375,7 +389,8 @@ class Variable(Base, LoggingMixin):
             ctx = create_session()
 
         with ctx as session:
-            rows = session.execute(delete(Variable).where(Variable.key == key)).rowcount
+            result = session.execute(delete(Variable).where(Variable.key == key))
+            rows = getattr(result, "rowcount", 0)
             SecretCache.invalidate_variable(key)
             return rows
 
