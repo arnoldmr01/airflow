@@ -50,6 +50,7 @@ def _trigger_dag(
     conf: dict | str | None = None,
     logical_date: datetime | None = None,
     replace_microseconds: bool = True,
+    note: str | None = None,
     session: Session = NEW_SESSION,
 ) -> DagRun | None:
     """
@@ -121,6 +122,9 @@ def _trigger_dag(
         session=session,
     )
 
+    if note:
+        dag_run.note = note
+
     return dag_run
 
 
@@ -135,6 +139,7 @@ def trigger_dag(
     conf: dict | str | None = None,
     logical_date: datetime | None = None,
     replace_microseconds: bool = True,
+    note: str | None = None,
     session: Session = NEW_SESSION,
 ) -> DagRun | None:
     """
@@ -166,6 +171,7 @@ def trigger_dag(
         replace_microseconds=replace_microseconds,
         triggered_by=triggered_by,
         triggering_user_name=triggering_user_name,
+        note=note,
         session=session,
     )
 
