@@ -119,11 +119,12 @@ def _trigger_dag(
         triggered_by=triggered_by,
         triggering_user_name=triggering_user_name,
         state=DagRunState.QUEUED,
+        note=note,
         session=session,
     )
 
-    if note:
-        dag_run.note = note
+    # if note:
+    #     dag_run.note = note
 
     return dag_run
 

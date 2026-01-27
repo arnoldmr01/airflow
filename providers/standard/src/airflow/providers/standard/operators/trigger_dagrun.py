@@ -284,8 +284,10 @@ class TriggerDagRunOperator(BaseOperator):
         )
 
         if self.note:
+            self.log.info("test note passing")
             sig = inspect.signature(DagRunTriggerException.__init__)
             if "note" in sig.parameters:
+                self.log.info(self.note)
                 kwargs_accepted["note"] = self.note
 
         raise DagRunTriggerException(**kwargs_accepted)

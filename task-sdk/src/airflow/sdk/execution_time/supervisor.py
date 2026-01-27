@@ -1370,6 +1370,7 @@ class ActivitySubprocess(WatchedSubprocess):
             resp = dagrun_result
             dump_opts = {"exclude_unset": True}
         elif isinstance(msg, TriggerDagRun):
+            log.info("[SUPERVISOR_TRIGGER] dag_id=%s run_id=%s note=%r", msg.dag_id, msg.run_id, msg.note)
             resp = self.client.dag_runs.trigger(
                 msg.dag_id, msg.run_id, msg.conf, msg.logical_date, msg.reset_dag_run, msg.note
             )

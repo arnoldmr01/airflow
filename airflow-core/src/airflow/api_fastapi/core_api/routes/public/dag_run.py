@@ -482,8 +482,7 @@ def trigger_dag_run(
 
         dag_run_note = body.note
         if dag_run_note:
-            current_user_id = user.get_id()
-            dag_run.note = (dag_run_note, current_user_id)
+            dag_run.note = dag_run_note
         return dag_run
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
