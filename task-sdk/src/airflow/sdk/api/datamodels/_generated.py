@@ -356,6 +356,7 @@ class TriggerDAGRunPayload(BaseModel):
     conf: Annotated[dict[str, Any] | None, Field(title="Conf")] = None
     reset_dag_run: Annotated[bool | None, Field(title="Reset Dag Run")] = False
     partition_key: Annotated[str | None, Field(title="Partition Key")] = None
+    note: Annotated[str | None, Field(title="Note")] = None
 
 
 class UpdateHITLDetailPayload(BaseModel):
