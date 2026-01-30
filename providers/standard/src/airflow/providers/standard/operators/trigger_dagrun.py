@@ -291,15 +291,16 @@ class TriggerDagRunOperator(BaseOperator):
             deferrable=self.deferrable,
         )
 
-        if self.note:
-            sig = inspect.signature(DagRunTriggerException.__init__)
-            if "note" in sig.parameters:
-                kwargs_accepted["note"] = self.note
+        if self.note and "note" in inspect.signature(DagRunTriggerException.__init__).parameters:
+            kwargs_accepted["note"] = self.note
 
         raise DagRunTriggerException(**kwargs_accepted)
 
     def _trigger_dag_af_2(self, context, run_id, parsed_logical_date):
         try:
+            if self.note:
+                self.log.warning("Parameter 'note' is not supported in Airflow 2.x and will be ignored.")
+
             dag_run = trigger_dag(
                 dag_id=self.trigger_dag_id,
                 run_id=run_id,
