@@ -304,6 +304,7 @@ class DagRun(StrictBaseModel):
     triggering_user_name: str | None = None
     consumed_asset_events: list[AssetEventDagRunReference]
     partition_key: str | None
+    note: str | None = None
 
 
 class TIRunContext(BaseModel):
